@@ -1,0 +1,19 @@
+# secrets
+.env
+
+# raw data is downloaded from Kaggle, never committed (CC BY-NC-SA 4.0, ~120 MB)
+data/raw/*.csv
+data/raw/*.zip
+
+# python
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.venv/
+
+# editors / os
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
