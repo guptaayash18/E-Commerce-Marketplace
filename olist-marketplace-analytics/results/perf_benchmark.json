@@ -1,0 +1,69 @@
+{
+  "repeats": 5,
+  "statement_timeout_ms": 90000,
+  "rewrite_result_check": {
+    "rows": 98207,
+    "sha256_16": "255f127de69384f0",
+    "identical": true
+  },
+  "with_indexes": {
+    "A_naive_correlated_subquery": {
+      "median_ms": 980.116,
+      "samples_ms": [
+        1115.453,
+        1140.583,
+        980.116,
+        944.171,
+        926.685
+      ]
+    },
+    "A_window_function": {
+      "median_ms": 204.273,
+      "samples_ms": [
+        206.293,
+        199.407,
+        195.282,
+        204.273,
+        206.038
+      ]
+    },
+    "B_late_orders_march_2018": {
+      "median_ms": 20.507,
+      "samples_ms": [
+        22.693,
+        22.164,
+        20.389,
+        20.486,
+        20.507
+      ]
+    }
+  },
+  "without_indexes": {
+    "A_naive_correlated_subquery": {
+      "median_ms": null,
+      "samples_ms": [
+        null
+      ]
+    },
+    "A_window_function": {
+      "median_ms": 220.782,
+      "samples_ms": [
+        236.374,
+        243.216,
+        220.327,
+        220.782,
+        210.068
+      ]
+    },
+    "B_late_orders_march_2018": {
+      "median_ms": 50.849,
+      "samples_ms": [
+        50.849,
+        75.97,
+        66.039,
+        48.826,
+        49.875
+      ]
+    }
+  }
+}

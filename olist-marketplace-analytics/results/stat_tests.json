@@ -1,0 +1,55 @@
+{
+  "one_star_late_vs_on_time": {
+    "test": "chi-square test of independence (2x2, no continuity correction)",
+    "late": {
+      "one_star": 3539,
+      "orders": 6534,
+      "rate": 0.5416284052647689,
+      "ci95": [
+        0.529526047551462,
+        0.553681843527176
+      ]
+    },
+    "on_time": {
+      "one_star": 6160,
+      "orders": 89936,
+      "rate": 0.0684931506849315,
+      "ci95": [
+        0.06686070022355195,
+        0.07016246169202145
+      ]
+    },
+    "risk_ratio": 7.907774716865625,
+    "chi2": 15079.051835747026,
+    "dof": 1,
+    "p_value": 0.0
+  },
+  "repeat_after_late_vs_on_time_first_order": {
+    "test": "two-proportion z-test, two-sided",
+    "first_order_late": {
+      "repeaters": 160,
+      "people": 6355,
+      "rate": 0.025177025963808025,
+      "ci95": [
+        0.02160264059965844,
+        0.029325104804182628
+      ]
+    },
+    "first_order_on_time": {
+      "repeaters": 2641,
+      "people": 86995,
+      "rate": 0.03035806655554917,
+      "ci95": [
+        0.029238538347331443,
+        0.031519069113218126
+      ]
+    },
+    "difference_pp": 0.5181040591741144,
+    "difference_ci95_pp": [
+      0.11641229549594805,
+      0.9197958228522808
+    ],
+    "z": 2.337118300080862,
+    "p_value": 0.019433033723059982
+  }
+}

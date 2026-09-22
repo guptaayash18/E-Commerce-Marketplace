@@ -1,0 +1,10 @@
+block,key,orders,order_share_pct,avg_order_value_brl,avg_installments,avg_review
+payment_type,boleto,19191,19.9,144.33,1.00,4.14
+payment_type,credit_card,72825,75.5,166.18,3.55,4.14
+payment_type,debit_card,1484,1.5,140.41,1.00,4.23
+payment_type,voucher,2977,3.1,114.86,1.15,4.11
+installments,1. single payment,46816,48.5,120.21,1.00,4.18
+installments,2. 2-3 instalments,22159,23.0,135.41,2.46,4.14
+installments,3. 4-6 instalments,15739,16.3,181.85,4.80,4.11
+installments,4. 7-10 instalments,11434,11.9,333.50,8.82,4.07
+installments,5. 11+ instalments,329,0.3,361.50,14.57,3.91

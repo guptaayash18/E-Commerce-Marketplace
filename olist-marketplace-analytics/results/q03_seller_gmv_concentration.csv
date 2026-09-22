@@ -1,0 +1,5 @@
+seller_tier,sellers,gmv_brl,gmv_share_pct,cumulative_share_pct,orders,avg_gmv_per_seller_brl
+1. top 1%,30,3427664,25.9,25.9,21537,114255
+2. next 4% (top 5%),120,3605009,27.3,53.2,23253,30042
+3. next 15% (top 20%),450,3874427,29.3,82.5,30471,8610
+4. bottom 80%,2370,2314398,17.5,100.0,22558,977

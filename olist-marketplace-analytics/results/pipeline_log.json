@@ -1,0 +1,111 @@
+{
+  "steps": {
+    "00_schemas.sql": 0.001,
+    "01_raw_tables.sql": 0.043,
+    "copy_raw": 7.965,
+    "02_staging.sql": 2.928,
+    "04_mart.sql": 2.491,
+    "05_indexes.sql": 1.506
+  },
+  "raw_counts": {
+    "customers": 99441,
+    "geolocation": 1000163,
+    "order_items": 112650,
+    "order_payments": 103886,
+    "order_reviews": 100000,
+    "orders": 99441,
+    "products": 32951,
+    "sellers": 3095,
+    "product_category_name_translation": 71
+  },
+  "staging_counts": {
+    "customers": 99441,
+    "geolocation": 19010,
+    "order_items": 112650,
+    "order_payments": 103886,
+    "order_reviews": 99441,
+    "orders": 99441,
+    "products": 32951,
+    "sellers": 3095
+  },
+  "mart_counts": {
+    "dim_customer": 99441,
+    "dim_date": 852,
+    "dim_product": 32951,
+    "dim_seller": 3095,
+    "fact_order_items": 112650,
+    "fact_orders": 99441
+  },
+  "quality_checks": [
+    {
+      "check_name": "every product has an English category label",
+      "observed": "0",
+      "passed": true
+    },
+    {
+      "check_name": "one coordinate per zip prefix in staging.geolocation",
+      "observed": "0",
+      "passed": true
+    },
+    {
+      "check_name": "delivered orders missing delivery date (known: 8)",
+      "observed": "8",
+      "passed": true
+    },
+    {
+      "check_name": "review_score within 1..5",
+      "observed": "0",
+      "passed": true
+    },
+    {
+      "check_name": "raw.orders has 99,441 rows",
+      "observed": "99441",
+      "passed": true
+    },
+    {
+      "check_name": "purchase dates within Sep 2016 .. Oct 2018",
+      "observed": "0",
+      "passed": true
+    },
+    {
+      "check_name": "no negative price or freight",
+      "observed": "0",
+      "passed": true
+    },
+    {
+      "check_name": "no order_items row without a seller",
+      "observed": "0",
+      "passed": true
+    },
+    {
+      "check_name": "no order_items row without a product",
+      "observed": "0",
+      "passed": true
+    },
+    {
+      "check_name": "order_id is unique in staging.orders",
+      "observed": "0",
+      "passed": true
+    },
+    {
+      "check_name": "no order_items row without an order",
+      "observed": "0",
+      "passed": true
+    },
+    {
+      "check_name": "reviews deduplicated to one per order",
+      "observed": "0",
+      "passed": true
+    },
+    {
+      "check_name": "orders without any item (known: 775, none delivered)",
+      "observed": "775 itemless, 0 delivered",
+      "passed": true
+    },
+    {
+      "check_name": "every order has a customer row",
+      "observed": "0",
+      "passed": true
+    }
+  ]
+}

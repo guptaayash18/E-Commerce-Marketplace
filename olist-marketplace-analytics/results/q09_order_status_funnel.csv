@@ -1,0 +1,5 @@
+step,stage,orders,pct_of_purchased,dropped_from_prev_stage,drop_off_pct
+1,purchased,99441,100.00,,
+2,approved,99281,99.84,160,0.16
+3,handed_to_carrier,97658,98.21,1623,1.63
+4,delivered_to_customer,96476,97.02,1182,1.21

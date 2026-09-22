@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Olist Marketplace Ops &amp; Growth Analytics</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
+<style>
+:root{--bg:#f3f4f6;--card:#fff;--header:#111827;--text:#111827;--muted:#6b7280;--accent:#2563eb;--warn:#dc2626;--ok:#059669;--radius:10px;--gap:16px;
+      --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.45}
+.wrap{max-width:1320px;margin:0 auto;padding:var(--gap)}
+header{background:var(--header);color:#fff;padding:20px 24px;border-radius:var(--radius);margin-bottom:var(--gap);display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px}
+header h1{font-size:20px;font-weight:600}
+header p{font-size:13px;color:#cbd5e1;margin-top:4px}
+header .meta{font-size:12px;color:#94a3b8;text-align:right}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:var(--gap);margin-bottom:var(--gap)}
+.kpi{background:var(--card);border-radius:var(--radius);padding:16px 18px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.kpi .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.kpi .v{font-size:26px;font-weight:700;margin:2px 0}
+.kpi .s{font-size:12px;color:var(--muted)}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:var(--gap);margin-bottom:var(--gap)}
+.card{background:var(--card);border-radius:var(--radius);padding:18px 20px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.card h3{font-size:14px;font-weight:600;margin-bottom:2px}
+.card .sub{font-size:12px;color:var(--muted);margin-bottom:12px}
+.card canvas{max-height:280px}
+.table-card{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:8px 10px;border-bottom:2px solid #e5e7eb;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;white-space:nowrap;user-select:none}
+th:hover{color:var(--text);background:#f9fafb}
+td{padding:8px 10px;border-bottom:1px solid #f3f4f6;white-space:nowrap}
+tr:hover td{background:#f9fafb}
+td.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px}
+.bad{color:var(--warn);font-weight:600}
+.note{font-size:12px;color:var(--muted);margin-top:10px}
+footer{font-size:12px;color:var(--muted);padding:8px 4px 24px}
+@media(max-width:768px){.row{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}header{flex-direction:column;align-items:flex-start}header .meta{text-align:left}}
+@media print{body{background:#fff}.card{break-inside:avoid;box-shadow:none;border:1px solid #e5e7eb}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <h1>Olist Marketplace Ops &amp; Growth Analytics</h1>
+    <p>Brazilian e-commerce marketplace, Sep 2016 – Oct 2018 · PostgreSQL star schema · every figure traces to one SQL file in <code>sql/analysis/</code></p>
+  </div>
+  <div class="meta" id="meta"></div>
+</header>
+
+<section class="kpis" id="kpis"></section>
+
+<section class="row">
+  <div class="card"><h3>Late-delivery rate by purchase month</h3><div class="sub">Q1 · share of delivered orders arriving after the promised date; bars = delivered orders</div><canvas id="c_month"></canvas></div>
+  <div class="card"><h3>1-star review share by how late the parcel was</h3><div class="sub">Q2 · dose-response: later arrival, worse review</div><canvas id="c_review"></canvas></div>
+</section>
+<section class="row">
+  <div class="card"><h3>Late-delivery rate by customer state (top 12)</h3><div class="sub">Q1 · states with ≥30 delivered orders</div><canvas id="c_state"></canvas></div>
+  <div class="card"><h3>Freight as share of what the customer pays (top 12 states)</h3><div class="sub">Q5 · with average delivery days alongside</div><canvas id="c_freight"></canvas></div>
+</section>
+<section class="row">
+  <div class="card"><h3>GMV concentration across sellers</h3><div class="sub">Q3 · cumulative share of delivered GMV by seller tier</div><canvas id="c_sellers"></canvas></div>
+  <div class="card"><h3>Top 12 categories by delivered GMV</h3><div class="sub">Q6 · with average review score</div><canvas id="c_cat"></canvas></div>
+</section>
+<section class="row">
+  <div class="card"><h3>Operational funnel</h3><div class="sub">Q9 · orders reaching each stage</div><canvas id="c_funnel"></canvas></div>
+  <div class="card"><h3>Order value by instalment count</h3><div class="sub">Q8 · delivered orders, average payment value (BRL)</div><canvas id="c_pay"></canvas></div>
+</section>
+
+<section class="card table-card">
+  <h3>Seller scorecard — weakest on-time performers</h3>
+  <div class="sub">Q7 · sellers with ≥50 delivered orders · click a header to sort</div>
+  <table id="t_sellers"><thead></thead><tbody></tbody></table>
+  <div class="note" id="t_note"></div>
+</section>
+
+<section class="card" style="margin-top:16px">
+  <h3>Sizing: what halving late deliveries would change (estimate, not measured impact)</h3>
+  <div class="sub">Q10 · assumes orders moved from late to on-time behave like today's on-time orders; correlation treated as causal for sizing only</div>
+  <div id="sizing" style="font-size:14px"></div>
+</section>
+
+<footer id="foot"></footer>
+</div>
+
+<script>
+const D = __DATA__;
+const C = {blue:'#2563eb',red:'#dc2626',green:'#059669',amber:'#d97706',grey:'#9ca3af',violet:'#7c3aed'};
+const fmt = {
+  n: v => v==null?'—':Number(v).toLocaleString('en-US'),
+  pct: v => v==null?'—':Number(v).toFixed(1)+'%',
+  brl: v => v==null?'—':'R$'+(v>=1e6?(v/1e6).toFixed(2)+'M':v>=1e3?(v/1e3).toFixed(0)+'K':Number(v).toFixed(0)),
+};
+Chart.defaults.font.family = getComputedStyle(document.documentElement).getPropertyValue('--font');
+Chart.defaults.plugins.legend.labels.boxWidth = 12;
+
+// KPIs
+const k = D.kpi;
+const kpis = [
+  ['Delivered orders', fmt.n(k.orders_delivered), 'of '+fmt.n(k.orders_total)+' placed'],
+  ['Delivered GMV', fmt.brl(k.gmv_delivered_brl), 'avg R$'+k.avg_order_gmv_brl+' per order'],
+  ['Late-delivery rate', fmt.pct(k.late_rate_pct), fmt.n(k.late_orders)+' orders, avg '+k.avg_days_late_when_late+' days late'],
+  ['1-star risk when late', k.one_star_risk_ratio+'×', fmt.pct(k.one_star_pct_late)+' vs '+fmt.pct(k.one_star_pct_on_time)+' on time'],
+  ['Top 5% sellers', fmt.pct(k.top5pct_sellers_gmv_share_pct)+' of GMV', 'top 1% alone: '+fmt.pct(k.top1pct_sellers_gmv_share_pct)],
+  ['Repeat customers', fmt.pct(k.repeat_customer_rate_pct), fmt.n(k.customers_unique)+' unique buyers'],
+];
+document.getElementById('kpis').innerHTML = kpis.map(([l,v,s])=>`<div class="kpi"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join('');
+document.getElementById('meta').innerHTML = `Orders ${k.first_order_date} → ${k.last_order_date}<br>${fmt.n(k.sellers)} sellers · ${fmt.n(k.products)} products · ${k.categories} categories`;
+document.getElementById('foot').textContent = `Results generated ${k.generated_at}. Source: Brazilian E-Commerce Public Dataset by Olist (Kaggle, CC BY-NC-SA 4.0). Late = delivered after order_estimated_delivery_date.`;
+
+const base = {responsive:true, animation:false, plugins:{legend:{display:true}}};
+
+// Q1 by month: mixed bar + line
+new Chart(document.getElementById('c_month'), {
+  data:{labels:D.late_by_month.map(r=>r.key),
+    datasets:[
+      {type:'line',label:'Late rate %',data:D.late_by_month.map(r=>r.late_rate_pct),yAxisID:'y1',borderColor:C.red,backgroundColor:C.red,tension:.3,pointRadius:3},
+      {type:'bar',label:'Delivered orders',data:D.late_by_month.map(r=>r.delivered_orders),yAxisID:'y',backgroundColor:'#bfdbfe'}]},
+  options:{...base,scales:{y:{position:'left',title:{display:true,text:'orders'}},y1:{position:'right',grid:{drawOnChartArea:false},title:{display:true,text:'% late'},min:0}}}
+});
+
+// Q2 review vs lateness
+new Chart(document.getElementById('c_review'), {
+  type:'bar',
+  data:{labels:D.review_vs_late.map(r=>r.lateness_bucket.replace(/^\d\. /,'')),
+    datasets:[{label:'1-star share %',data:D.review_vs_late.map(r=>r.one_star_pct),backgroundColor:C.red},
+              {label:'5-star share %',data:D.review_vs_late.map(r=>r.five_star_pct),backgroundColor:C.green}]},
+  options:{...base,scales:{y:{max:100,title:{display:true,text:'% of orders'}}}}
+});
+
+// Q1 by state
+const st = [...D.late_by_state].sort((a,b)=>b.late_rate_pct-a.late_rate_pct).slice(0,12);
+new Chart(document.getElementById('c_state'), {
+  type:'bar',
+  data:{labels:st.map(r=>r.key),datasets:[{label:'Late rate %',data:st.map(r=>r.late_rate_pct),backgroundColor:st.map(r=>r.late_rate_pct>=k.late_rate_pct*2?C.red:C.amber)}]},
+  options:{...base,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{afterLabel:c=>`${fmt.n(st[c.dataIndex].delivered_orders)} delivered · avg ${st[c.dataIndex].avg_delivery_days} days`}}},scales:{x:{title:{display:true,text:'% late (network '+fmt.pct(k.late_rate_pct)+')'}}}}
+});
+
+// Q5 freight share
+const fr = D.freight.slice(0,12);
+new Chart(document.getElementById('c_freight'), {
+  data:{labels:fr.map(r=>r.state),datasets:[
+    {type:'bar',label:'Freight share of order value %',data:fr.map(r=>r.freight_share_pct),backgroundColor:C.violet,yAxisID:'y'},
+    {type:'line',label:'Avg delivery days',data:fr.map(r=>r.avg_delivery_days),borderColor:C.amber,backgroundColor:C.amber,yAxisID:'y1',tension:.3}]},
+  options:{...base,scales:{y:{title:{display:true,text:'% freight'}},y1:{position:'right',grid:{drawOnChartArea:false},title:{display:true,text:'days'}}}}
+});
+
+// Q3 seller concentration
+new Chart(document.getElementById('c_sellers'), {
+  data:{labels:D.seller_conc.map(r=>r.seller_tier.replace(/^\d\. /,'')+' ('+r.sellers+' sellers)'),datasets:[
+    {type:'bar',label:'GMV share %',data:D.seller_conc.map(r=>r.gmv_share_pct),backgroundColor:C.blue},
+    {type:'line',label:'Cumulative %',data:D.seller_conc.map(r=>r.cumulative_share_pct),borderColor:C.red,backgroundColor:C.red,tension:.2}]},
+  options:{...base,scales:{y:{max:100,title:{display:true,text:'% of delivered GMV'}}}}
+});
+
+// Q6 categories
+const cat = D.categories.slice(0,12);
+new Chart(document.getElementById('c_cat'), {
+  data:{labels:cat.map(r=>r.category_en),datasets:[
+    {type:'bar',label:'GMV (R$ thousand)',data:cat.map(r=>Math.round(r.gmv_brl/1000)),backgroundColor:C.blue,yAxisID:'y'},
+    {type:'line',label:'Avg review',data:cat.map(r=>r.avg_review),borderColor:C.green,backgroundColor:C.green,yAxisID:'y1',tension:.2}]},
+  options:{...base,scales:{x:{ticks:{autoSkip:false,maxRotation:60,minRotation:45}},y:{title:{display:true,text:'R$ thousand'}},y1:{position:'right',min:3.5,max:4.5,grid:{drawOnChartArea:false},title:{display:true,text:'review'}}}}
+});
+
+// Q9 funnel
+new Chart(document.getElementById('c_funnel'), {
+  type:'bar',
+  data:{labels:D.funnel.map(r=>r.stage.replace(/_/g,' ')),datasets:[{label:'Orders',data:D.funnel.map(r=>r.orders),backgroundColor:[C.grey,C.blue,C.blue,C.green]}]},
+  options:{...base,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{afterLabel:c=>{const r=D.funnel[c.dataIndex];return r.drop_off_pct==null?'':`${fmt.n(r.dropped_from_prev_stage)} dropped (${r.drop_off_pct}%)`;}}}},scales:{x:{min:95000,title:{display:true,text:'orders (axis starts at 95,000)'}}}}
+});
+
+// Q8 instalments
+const pay = D.payments.filter(r=>r.block==='installments');
+new Chart(document.getElementById('c_pay'), {
+  data:{labels:pay.map(r=>r.key.replace(/^\d\. /,'')),datasets:[
+    {type:'bar',label:'Avg order value (R$)',data:pay.map(r=>r.avg_order_value_brl),backgroundColor:C.blue,yAxisID:'y'},
+    {type:'line',label:'Share of orders %',data:pay.map(r=>r.order_share_pct),borderColor:C.amber,backgroundColor:C.amber,yAxisID:'y1',tension:.2}]},
+  options:{...base,scales:{y:{title:{display:true,text:'R$'}},y1:{position:'right',grid:{drawOnChartArea:false},title:{display:true,text:'% of orders'}}}}
+});
+
+// Q7 seller table (sortable)
+const cols = [['seller_id','Seller'],['seller_state','State'],['delivered_orders','Delivered'],['gmv_brl','GMV (R$)'],['on_time_pct','On-time %'],['avg_review','Avg review'],['avg_delivery_days','Avg days'],['worst_on_time_rank_in_state','Rank in state (worst=1)']];
+let rows = D.sellers.slice(), sortKey='on_time_pct', asc=true;
+function renderTable(){
+  const sorted=[...rows].sort((a,b)=>{const x=a[sortKey],y=b[sortKey];return (x>y?1:x<y?-1:0)*(asc?1:-1)});
+  const show=sorted.slice(0,25);
+  document.querySelector('#t_sellers thead').innerHTML='<tr>'+cols.map(([kk,l])=>`<th data-k="${kk}">${l}${kk===sortKey?(asc?' ▲':' ▼'):''}</th>`).join('')+'</tr>';
+  document.querySelector('#t_sellers tbody').innerHTML=show.map(r=>'<tr>'+cols.map(([kk])=>{
+    let v=r[kk]; if(kk==='seller_id') return `<td class="mono">${String(v).slice(0,12)}…</td>`;
+    if(kk==='gmv_brl'||kk==='delivered_orders') v=fmt.n(v);
+    const cls=(kk==='on_time_pct'&&r.on_time_pct<90)?' class="bad"':'';
+    return `<td${cls}>${v}</td>`}).join('')+'</tr>').join('');
+  document.getElementById('t_note').textContent=`Showing 25 of ${rows.length} sellers with ≥50 delivered orders. Network on-time rate: ${fmt.pct(100-k.late_rate_pct)}.`;
+  document.querySelectorAll('#t_sellers th').forEach(th=>th.onclick=()=>{const kk=th.dataset.k; if(sortKey===kk) asc=!asc; else {sortKey=kk; asc=true;} renderTable();});
+}
+renderTable();
+
+// Q10 sizing
+const s=D.sizing;
+document.getElementById('sizing').innerHTML=`
+<p><b>Inputs:</b> ${fmt.n(s.late_orders)} late orders carrying ${fmt.brl(s.gmv_delivered_late_brl)} of GMV; 1-star share ${s.one_star_pct_late}% when late vs ${s.one_star_pct_on_time}% on time; repeat rate ${s.repeat_pct_after_late_first_order}% after a late first order vs ${s.repeat_pct_after_on_time_first_order}% after an on-time first order.</p>
+<p style="margin-top:8px"><b>If late deliveries fell by half (${fmt.n(s.orders_moved_to_on_time)} orders):</b> about <b>${fmt.n(s.est_one_star_reviews_avoided)} 1-star reviews avoided</b> per period, and roughly ${fmt.n(s.est_extra_repeat_orders)} extra repeat orders (≈${fmt.brl(s.est_extra_repeat_gmv_brl)}) — the repeat effect is small because only ${k.repeat_customer_rate_pct}% of buyers ever return, so the review effect is the one that matters.</p>`;
+</script>
+</body>
+</html>
